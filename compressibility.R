@@ -4,12 +4,18 @@ library(ggraph)
 library(lme4)
 library(broom)
 
-bibles <- read_csv("bibles_compressibility.csv")
+devtools::load_all(".")
+
+bibles <- read_csv("bibles.csv")
 bibles$compression <- with(bibles, gzip1/origSize)
 
-basic <- lmer(compression ~ logpopall +
-                numUniqueChars + numUniqueWords + origSize +
-                (logpopall|pair),
-              data = bibles)
+formulas <- generate_formulas("compression ~ logpopall + (logpopall|pair)",
+                              c("numUniqueChars", "numUniqueWords", "origSize"))
 
-tidy(basic, effects = "fixed")
+models <- data_frame(
+  model_id = 1:length(formulas),
+  formula = formulas,
+  model = map(formulas, lmer, data = bibles)
+)
+
+# edges <- get_deviations(formulas)
