@@ -1,6 +1,6 @@
 PackratFormat: 1.4
 PackratVersion: 0.4.8.1
-RVersion: 3.4.0
+RVersion: 3.4.1
 Repos: CRAN=https://cran.rstudio.com/
 
 Package: BH
@@ -219,7 +219,7 @@ Requires: NMF, irlba, magrittr
 Package: irlba
 Source: CRAN
 Version: 2.2.1
-Hash: 9a77571d304ef3473cfef7effdae93b5
+Hash: 55fe0e84cd75f28f34804f8b75902aff
 
 Package: iterators
 Source: CRAN
