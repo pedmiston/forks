@@ -26,6 +26,12 @@ model_summaries <- models %>%
     mod_summary$formula <- .$formula
     mod_summary %>% select(formula, everything())
   }) %>%
+  mutate(
+    significance_level = cut(statistic,
+                             breaks = c(-Inf, 2, 3, Inf),
+                             labels = c("<2", "2-3", ">3")),
+    significance_level = factor(significance_level, levels = c("<2", "2-3", ">3"))
+  ) %>%
   filter(term == "logpopall")
 
 models <- left_join(models, model_summaries)
@@ -40,9 +46,11 @@ ggraph(graph, layout = "kk") +
                  label_dodge = unit(2.5, 'mm'),
                  arrow = arrow(length = unit(4, 'mm')), 
                  end_cap = circle(3, 'mm')) +
-  geom_node_point() +
-  geom_node_label(aes(filter = is_base, label = name), vjust = -0.5,
-                  size = 5) +
-  coord_cartesian(xlim = c(-1, 1.4), ylim = c(-1.5, 1.5))
+  geom_node_point(aes(size = statistic, color = significance_level)) +
+  geom_node_text(aes(filter = is_base, label = name), vjust = -1,
+                 size = 5) +
+  coord_cartesian(xlim = c(-1, 1.4), ylim = c(-1.5, 1.5)) +
+  scale_color_manual(values = c("green", "yellow", "red"), drop = FALSE) +
+  theme_graph()
 
 ggsave("compressibility.png")
