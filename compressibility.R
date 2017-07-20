@@ -19,6 +19,17 @@ models <- data_frame(
   is_base = c(TRUE, rep(FALSE, times = length(formulas) - 1))
 )
 
+model_summaries <- models %>%
+  rowwise() %>%
+  do({
+    mod_summary <- tidy(.$mod, effects = "fixed")
+    mod_summary$formula <- .$formula
+    mod_summary %>% select(formula, everything())
+  }) %>%
+  filter(term == "logpopall")
+
+models <- left_join(models, model_summaries)
+
 edges <- get_deviations(formulas)
 
 graph <- graph_from_data_frame(edges, vertices = models)
