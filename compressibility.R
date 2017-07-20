@@ -44,3 +44,5 @@ ggraph(graph, layout = "kk") +
   geom_node_label(aes(filter = is_base, label = name), vjust = -0.5,
                   size = 5) +
   coord_cartesian(xlim = c(-1, 1.4), ylim = c(-1.5, 1.5))
+
+ggsave("compressibility.png")
