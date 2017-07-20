@@ -1,6 +1,6 @@
 context("Generating formulas")
 
-test_that("basic formulas can be generated", {
+test_that("formulas can be generated from vector of covariates", {
   formulas <- generate_formulas("y ~ x", c("a", "b"))
   expect_equal(formulas, c("y ~ x", "y ~ x + a", "y ~ x + b", "y ~ x + a + b"))
 })
@@ -8,14 +8,40 @@ test_that("basic formulas can be generated", {
 
 context("Comparing formulas")
 
-test_that("comparing models returns difference and size", {
+test_that("comparing formulas returns positive differences and size", {
   compared <- compare_formulas("y ~ x", "y ~ x + a")
   
   expected <- data_frame(
     from = "y ~ x",
     to = "y ~ x + a",
-    difference = "a",
+    difference = "+ a",
     n_different = as.integer(1)
+  )
+  
+  expect_equal(compared, expected)
+})
+
+test_that("comparing formulas returns negative differences and size", {
+  compared <- compare_formulas("y ~ x + a", "y ~ x")
+  
+  expected <- data_frame(
+    from = "y ~ x + a",
+    to = "y ~ x",
+    difference = "- a",
+    n_different = as.integer(1)
+  )
+  
+  expect_equal(compared, expected)
+})
+
+test_that("comparing formulas returns both positive and negative differences", {
+  compared <- compare_formulas("y ~ x + a", "y ~ x + b")
+  
+  expected <- data_frame(
+    from = "y ~ x + a",
+    to = "y ~ x + b",
+    difference = "- a + b",
+    n_different = as.integer(2)
   )
   
   expect_equal(compared, expected)
@@ -55,4 +81,8 @@ test_that("only models differing by 1 variable are returned as edges", {
   )
   
   expect_equal(edges[,c("from", "to")], expected)
+})
+
+test_that("model differences are calculated from left and right", {
+  
 })

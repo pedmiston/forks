@@ -10,18 +10,27 @@ generate_formulas <- function(base_formula, covariates) {
   c(base_formula, unlist(formulas))
 }
 
+#' @import magrittr
 compare_formulas <- function(from, to) {
   from_args <- split_formula_args(from)
   to_args <- split_formula_args(to)
   
-  arg_diff <- setdiff(to_args, from_args)
+  positive_arg_diff <- calculate_arg_set_difference(to_args, from_args, "+")
+  negative_arg_diff <- calculate_arg_set_difference(from_args, to_args, "-")
+  arg_diff <- c(negative_arg_diff, positive_arg_diff)
   
   data_frame(
     from = from,
     to = to,
-    difference = arg_diff,
+    difference = paste(arg_diff, collapse = " "),
     n_different = length(arg_diff)
   )
+}
+
+calculate_arg_set_difference <- function(arg_set_a, arg_set_b, prefix) {
+  arg_diff <- setdiff(arg_set_a, arg_set_b)
+  if (length(arg_diff) == 0) return(NULL)
+  paste(prefix, arg_diff)
 }
 
 split_formula_args <- function(formula_string) {

@@ -15,7 +15,8 @@ formulas <- generate_formulas("compression ~ logpopall + (logpopall|pair)",
 
 models <- data_frame(
   formula = formulas,
-  model = map(formulas, lmer, data = bibles)
+  model = map(formulas, lmer, data = bibles),
+  is_base = c(TRUE, rep(FALSE, times = length(formulas) - 1))
 )
 
 edges <- get_deviations(formulas)
@@ -28,4 +29,7 @@ ggraph(graph, layout = "kk") +
                  label_dodge = unit(2.5, 'mm'),
                  arrow = arrow(length = unit(4, 'mm')), 
                  end_cap = circle(3, 'mm')) +
-  geom_node_point()
+  geom_node_point() +
+  geom_node_label(aes(filter = is_base, label = name), vjust = -0.5,
+                  size = 5) +
+  coord_cartesian(xlim = c(-1, 1.4), ylim = c(-1.5, 1.5))
