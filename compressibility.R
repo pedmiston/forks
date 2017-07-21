@@ -15,35 +15,8 @@ bibles$compression <- with(bibles, gzip1/origSize)
 formulas <- generate_formulas("compression ~ logpopall + (logpopall|pair)",
                               c("numUniqueChars", "numUniqueWords", "origSize"))
 
-# Create a data_frame of formulas and lmer model objects
-models <- data_frame(
-  formula = formulas,
-  model = map(formulas, lmer, data = bibles),
-  # Identify the first formula as the base model
-  is_base = c(TRUE, rep(FALSE, times = length(formulas) - 1))
-)
-
-# Extract the model estimates and statistics from each model
-model_summaries <- models %>%
-  rowwise() %>%
-  do({
-    # Tidy the model, and add the model formula as the first column
-    mod_summary <- tidy(.$mod, effects = "fixed")
-    mod_summary$formula <- .$formula
-    mod_summary %>% select(formula, everything())
-  }) %>%
-  mutate(
-    # Assign discrete significance level
-    significance_level = cut(statistic,
-                             breaks = c(-Inf, 2, 3, Inf),
-                             labels = c("<2", "2-3", ">3")),
-    significance_level = factor(significance_level, levels = c("<2", "2-3", ">3"))
-  ) %>%
-  # Filter only model estimates for the factor of interest
-  filter(term == "logpopall")
-
-# Append the model estimate columns to the models dataframe
-models <- left_join(models, model_summaries)
+# Fit all models from formula
+models <- fit_models(formulas, focal_var = "logpopall", data = bibles)
 
 # Create edges for all 1-variable differences between model formulas
 edges <- get_deviations(formulas)
@@ -73,37 +46,8 @@ ggsave("compressibility.png")
 
 formulas <- generate_formulas("compression ~ logpopall + (logpopall|pair)",
                               c("numUniqueChars", "numUniqueWords", "origSize", "Latitude"))
-# Create a data_frame of formulas, lmer model objects, and model statistics
-models <- data_frame(
-    formula = formulas,
-    model = map(formulas, lmer, data = bibles),
-    # Identify the first formula as the base model
-    is_base = c(TRUE, rep(FALSE, times = length(formulas) - 1))
-  ) %>%
-  # Extract the model estimates and statistics from each model
-  left_join(
-    rowwise(.) %>%
-    do({
-      # Tidy the model, and add the model formula as the first column
-      mod_summary <- tidy(.$mod, effects = "fixed")
-      mod_summary$formula <- .$formula
-      mod_summary %>% select(formula, everything())
-    }) %>%
-    mutate(
-      # Assign discrete significance level
-      significance_level = cut(statistic,
-                               breaks = c(-Inf, 2, 3, Inf),
-                               labels = c("<2", "2-3", ">3")),
-      significance_level = factor(significance_level, levels = c("<2", "2-3", ">3"))
-    ) %>%
-    # Filter only model estimates for the factor of interest
-    filter(term == "logpopall")
-  )
-
-# Create edges for all 1-variable differences between model formulas
+models <- fit_models(formulas, focal_var = "logpopall", data = bibles)
 edges <- get_deviations(formulas)
-
-# Create an igraph::graph object from edges and nodes
 graph <- graph_from_data_frame(edges, vertices = models)
 
 # Draw the igraph::graph object with ggraph
