@@ -38,7 +38,7 @@ test_that("only models differing by 1 variable are returned as edges", {
 context("Generating random trees")
 
 test_that("simple tree returns the right number of edges", {
-  formulas <- expand_formulas("y ~ x", c("a", "b", "c"))
+  formulas <- expand_base_formula("y ~ x", c("a", "b", "c"))
   tree_edges <- walk_formula_tree(formulas)
   expect_equal(nrow(tree_edges), 7)
 })

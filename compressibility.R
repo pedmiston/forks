@@ -12,7 +12,7 @@ bibles <- read_csv("bibles.csv")
 bibles$compression <- with(bibles, gzip1/origSize)
 
 # Generate all model formulas with additions of various covariates
-formulas <- expand_formulas("compression ~ logpopall + (logpopall|pair)",
+formulas <- expand_base_formula("compression ~ logpopall + (logpopall|pair)",
                               c("numUniqueChars", "numUniqueWords", "origSize"))
 
 # Fit all models from formula
@@ -77,7 +77,7 @@ ggraph(graph, layout = "sugiyama") +
 # ----------------------
 # Extend to 4 covariates
 
-formulas <- expand_formulas("compression ~ logpopall + (logpopall|pair)",
+formulas <- expand_base_formula("compression ~ logpopall + (logpopall|pair)",
                               c("numUniqueChars", "numUniqueWords", "origSize", "Latitude"))
 models <- fit_models(formulas, focal_var = "logpopall", data = bibles)
 edges <- expand_formula_edges(formulas)

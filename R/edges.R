@@ -1,5 +1,5 @@
 
-#' Expand all pairwise combinations of formulas that differ in a single term.
+#' Generate all pairs of formulas that differ in a single term.
 #' @import magrittr
 #' @export
 expand_formula_edges <- function(formulas) {
@@ -13,7 +13,7 @@ expand_formula_edges <- function(formulas) {
     dplyr::filter(n_different == 1)
 }
 
-#' Create a random tree of formulas where each formula is visited once
+#' Generate pairs of formulas to create a tree.
 #' @import magrittr
 #' @export
 walk_formula_tree <- function(formulas) {

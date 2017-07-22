@@ -1,6 +1,6 @@
 library(testthat)
 library(dplyr)
 
-source("R/formulas.R")
+devtools::load_all(".")
 
 test_dir("tests/testthat")

@@ -1,4 +1,7 @@
-
+#' Fit models to data for all formulas.
+#' @param formulas An atomic vector of string formulas.
+#' @param focal_var The model term of interest. Should be in every model.
+#' @param data The data to fit the models to.
 #' @export
 fit_models <- function(formulas, focal_var, data) {
   models <- dplyr::data_frame(
@@ -14,6 +17,8 @@ fit_models <- function(formulas, focal_var, data) {
   left_join(models, summaries)
 }
 
+#' Extract model summaries for dataframe of models.
+#' @param models A dataframe with a "mod" column containing lmer models.
 #' @import magrittr
 #' @export
 extract_model_summaries <- function(models) {
