@@ -19,7 +19,7 @@ formulas <- generate_formulas("compression ~ logpopall + (logpopall|pair)",
 models <- fit_models(formulas, focal_var = "logpopall", data = bibles)
 
 # Create edges for all 1-variable differences between model formulas
-edges <- get_deviations(formulas)
+edges <- expand_formulas(formulas)
 
 # Create an igraph::graph object from edges and nodes
 graph <- graph_from_data_frame(edges, vertices = models)
@@ -59,7 +59,7 @@ ggraph(graph, layout = "dendrogram") +
 formulas <- generate_formulas("compression ~ logpopall + (logpopall|pair)",
                               c("numUniqueChars", "numUniqueWords", "origSize", "Latitude"))
 models <- fit_models(formulas, focal_var = "logpopall", data = bibles)
-edges <- get_deviations(formulas)
+edges <- expand_formulas(formulas)
 graph <- graph_from_data_frame(edges, vertices = models)
 
 # Draw the igraph::graph object with ggraph

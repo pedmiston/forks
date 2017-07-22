@@ -1,4 +1,7 @@
-get_deviations <- function(formulas) {
+
+#' Expand all pairwise combinations of formulas that differ in a single term.
+#' @export
+expand_formulas <- function(formulas) {
   all_pairwise <- tibble::as_data_frame(t(combn(formulas, m = 2)))
   names(all_pairwise) <- c("from", "to")
   all_pairwise %>%
@@ -22,7 +25,7 @@ get_tree_edges <- function(formulas, ordered_covariates, seed = NULL) {
   }
   
   # Start with all N == 1 edges
-  all_pairwise <- get_deviations(formulas) %>%
+  all_pairwise <- expand_formulas(formulas) %>%
     # Calculate the level of the "to" model for each from -> to edge
     # !!! Stinks !!!
     mutate(level = map(split_formula_args(.$to), ~ length(.x) - base_level) %>% unlist())

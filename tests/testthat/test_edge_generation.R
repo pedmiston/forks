@@ -6,7 +6,7 @@ test_that("edges can be created from formulas", {
     "y ~ x + a"
   )
   
-  edges <- get_deviations(formulas)
+  edges <- expand_formulas(formulas)
   
   expected <- data_frame(
     from = c("y ~ x"),
@@ -23,7 +23,7 @@ test_that("only models differing by 1 variable are returned as edges", {
     "y ~ x + a + b"
   )
   
-  edges <- get_deviations(formulas)
+  edges <- expand_formulas(formulas)
   
   expected <- data_frame(
     from = c("y ~ x", "y ~ x + a"),
