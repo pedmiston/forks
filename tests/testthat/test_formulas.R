@@ -6,6 +6,15 @@ test_that("formulas can be generated from vector of covariates", {
 })
 
 
+context("Formula manipulation")
+
+test_that("splitting formulas is vectorized", {
+  expect_equal(split_formula_args("y ~ x"), c("x"))
+  expect_equal(split_formula_args(c("y ~ x", "y ~ x + a")),
+               list(c("x"), c("x", "a")))
+})
+
+
 context("Comparing formulas")
 
 test_that("comparing formulas returns positive differences and size", {
