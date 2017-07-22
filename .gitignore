@@ -1,3 +1,4 @@
+man/
 *.png
 .Rproj.user
 packrat/lib*/

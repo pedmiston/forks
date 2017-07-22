@@ -1,51 +1,28 @@
 
 #' Expand all pairwise combinations of formulas that differ in a single term.
+#' @import magrittr
 #' @export
-expand_formulas <- function(formulas) {
+expand_formula_edges <- function(formulas) {
   all_pairwise <- tibble::as_data_frame(t(combn(formulas, m = 2)))
   names(all_pairwise) <- c("from", "to")
+  # Return only those edges where the formulas differ in only 1 term
   all_pairwise %>%
-    rowwise() %>%
-    do(compare_formulas(.$from, .$to)) %>%
-    ungroup() %>%
-    filter(n_different == 1)
+    dplyr::rowwise() %>%
+    dplyr::do(compare_formulas(.$from, .$to)) %>%
+    dplyr::ungroup() %>%
+    dplyr::filter(n_different == 1)
 }
 
-get_tree_edges <- function(formulas, ordered_covariates, seed = NULL) {
-  
-  # !!! Assumes formulas are ordered !!!
-  base_formula <- formulas[1]
-  base_level <- length(split_formula_args(base_formula))
-  max_formula <- formulas[length(formulas)]
-  
-  if (missing(ordered_covariates)) {
-    # Extract covariate order from variables in max but not in base
-    ordered_covariates <- setdiff(split_formula_args(max_formula),
-                                  split_formula_args(base_formula))
-  }
-  
-  # Start with all N == 1 edges
-  all_pairwise <- expand_formulas(formulas) %>%
-    # Calculate the level of the "to" model for each from -> to edge
-    # !!! Stinks !!!
-    mutate(level = map(split_formula_args(.$to), ~ length(.x) - base_level) %>% unlist())
-  
-  level_choices <- data_frame(
-    level = 0:length(ordered_covariates),
-    num_branches = rev(level)
-  )
-  
-  # Sample num_branches at each level
-  set.seed(seed)
-  random_edges <- level_choices %>%
-    rowwise() %>%
-    do({
-      level <- .$level
-      num_branches <- .$num_branches
-      all_pairwise %>%
-        filter(level == level) %>%
-        sample_n(size = num_branches)
-    })
-  
-  random_edges
+#' Create a random tree of formulas where each formula is visited once
+#' @import magrittr
+#' @export
+walk_formula_tree <- function(formulas) {
+  all_pairwise_edges <- expand_formula_edges(formulas)
+  formulas %>%
+    purrr::map(function(target) {
+      eligible_edges <- dplyr::filter(all_pairwise_edges, to == target)
+      if (nrow(eligible_edges) == 0) return(eligible_edges)
+      dplyr::sample_n(eligible_edges, size = 1)
+    }) %>%
+    dplyr::bind_rows()
 }

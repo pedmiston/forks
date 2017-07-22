@@ -12,14 +12,14 @@ bibles <- read_csv("bibles.csv")
 bibles$compression <- with(bibles, gzip1/origSize)
 
 # Generate all model formulas with additions of various covariates
-formulas <- generate_formulas("compression ~ logpopall + (logpopall|pair)",
+formulas <- expand_formulas("compression ~ logpopall + (logpopall|pair)",
                               c("numUniqueChars", "numUniqueWords", "origSize"))
 
 # Fit all models from formula
 models <- fit_models(formulas, focal_var = "logpopall", data = bibles)
 
 # Create edges for all 1-variable differences between model formulas
-edges <- expand_formulas(formulas)
+edges <- expand_formula_edges(formulas)
 
 # Create an igraph::graph object from edges and nodes
 graph <- graph_from_data_frame(edges, vertices = models)
@@ -43,23 +43,44 @@ ggraph(graph, layout = "kk") +
 
 # ----------------------------
 # Randomly selected tree edges
-tree_edges <- get_tree_edges(formulas)
+tree_edges <- walk_formula_tree(formulas)
 
 # Draw the igraph::graph object with ggraph
 graph <- graph_from_data_frame(tree_edges, vertices = models)
-ggraph(graph, layout = "dendrogram") +
-  geom_edge_diagonal() +
+ggraph(graph, layout = "sugiyama") +
+  geom_edge_link(aes(label = difference),
+                 angle_calc = 'along',
+                 label_dodge = unit(2.5, 'mm'),
+                 arrow = arrow(length = unit(4, 'mm')), 
+                 end_cap = circle(3, 'mm')) +
   geom_node_point(aes(size = significance_level, color = significance_level)) +
   geom_node_text(aes(filter = is_base, label = name), vjust = -1,
-                 size = 5)
+                 size = 5) +
+  theme_graph()
+
+# ggsave("compression-tree.png")
+
+ggraph(graph, layout = "sugiyama") +
+  geom_edge_link(aes(label = difference, color = difference),
+                 angle_calc = 'along',
+                 label_dodge = unit(2.5, 'mm'),
+                 arrow = arrow(length = unit(4, 'mm')), 
+                 end_cap = circle(3, 'mm')) +
+  geom_node_point(aes(size = estimate), shape = 1) +
+  geom_node_text(aes(filter = is_base, label = name), vjust = -1,
+                 size = 5) +
+  scale_color_brewer("Set2") +
+  theme_graph()
+
+# ggsave("compression-tree-color.png")
 
 # ----------------------
 # Extend to 4 covariates
 
-formulas <- generate_formulas("compression ~ logpopall + (logpopall|pair)",
+formulas <- expand_formulas("compression ~ logpopall + (logpopall|pair)",
                               c("numUniqueChars", "numUniqueWords", "origSize", "Latitude"))
 models <- fit_models(formulas, focal_var = "logpopall", data = bibles)
-edges <- expand_formulas(formulas)
+edges <- expand_formula_edges(formulas)
 graph <- graph_from_data_frame(edges, vertices = models)
 
 # Draw the igraph::graph object with ggraph

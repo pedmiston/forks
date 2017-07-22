@@ -1,7 +1,7 @@
 
-#' @import dplyr
+#' @export
 fit_models <- function(formulas, focal_var, data) {
-  models <- data_frame(
+  models <- dplyr::data_frame(
     formula = formulas,
     model = purrr::map(formulas, lme4::lmer, data = data),
     # Identify the first formula as the base model
@@ -14,17 +14,18 @@ fit_models <- function(formulas, focal_var, data) {
   left_join(models, summaries)
 }
 
-#' @import dplyr
+#' @import magrittr
+#' @export
 extract_model_summaries <- function(models) {
   models %>%
-    rowwise() %>%
-    do({
+    dplyr::rowwise() %>%
+    dplyr::do({
       # Tidy the model, and add the model formula as the first column
-      mod_summary <- tidy(.$mod, effects = "fixed")
+      mod_summary <- broom::tidy(.$mod, effects = "fixed")
       mod_summary$formula <- .$formula
       mod_summary %>% select(formula, everything())
     }) %>%
-    mutate(
+    dplyr::mutate(
       # Assign discrete significance level
       significance_level = cut(statistic,
                                breaks = c(-Inf, 2, 3, Inf),

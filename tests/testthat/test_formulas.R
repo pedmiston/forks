@@ -1,7 +1,7 @@
 context("Generating formulas")
 
 test_that("formulas can be generated from vector of covariates", {
-  formulas <- generate_formulas("y ~ x", c("a", "b"))
+  formulas <- expand_formulas("y ~ x", c("a", "b"))
   expect_equal(formulas, c("y ~ x", "y ~ x + a", "y ~ x + b", "y ~ x + a + b"))
 })
 

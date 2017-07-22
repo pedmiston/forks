@@ -1,4 +1,5 @@
-generate_formulas <- function(base_formula, covariates) {
+#' @export
+expand_formulas <- function(base_formula, covariates) {
   n_covariates <- length(covariates)
   covariate_ids <- unlist(
     lapply(1:n_covariates, function(m) combn(1:n_covariates, m, simplify = FALSE)),
@@ -11,6 +12,7 @@ generate_formulas <- function(base_formula, covariates) {
 }
 
 #' @import magrittr
+#' @export
 compare_formulas <- function(from, to) {
   from_args <- split_formula_args(from)
   to_args <- split_formula_args(to)
@@ -19,7 +21,7 @@ compare_formulas <- function(from, to) {
   negative_arg_diff <- calculate_arg_set_difference(from_args, to_args, "-")
   arg_diff <- c(negative_arg_diff, positive_arg_diff)
   
-  data_frame(
+  tibble::data_frame(
     from = from,
     to = to,
     difference = paste(arg_diff, collapse = " "),
@@ -35,6 +37,7 @@ calculate_arg_set_difference <- function(arg_set_a, arg_set_b, prefix) {
 
 
 #' @import magrittr
+#' @export
 split_formula_args <- function(formula_string) {
   formula_args <- formula_string %>%
     purrr::map(~ as.character(as.formula(.x))) %>%

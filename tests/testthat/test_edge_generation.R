@@ -1,3 +1,5 @@
+library(tibble)
+
 context("Creating all pairwise edges")
 
 test_that("edges can be created from formulas", {
@@ -6,7 +8,7 @@ test_that("edges can be created from formulas", {
     "y ~ x + a"
   )
   
-  edges <- expand_formulas(formulas)
+  edges <- expand_formula_edges(formulas)
   
   expected <- data_frame(
     from = c("y ~ x"),
@@ -23,7 +25,7 @@ test_that("only models differing by 1 variable are returned as edges", {
     "y ~ x + a + b"
   )
   
-  edges <- expand_formulas(formulas)
+  edges <- expand_formula_edges(formulas)
   
   expected <- data_frame(
     from = c("y ~ x", "y ~ x + a"),
@@ -36,7 +38,7 @@ test_that("only models differing by 1 variable are returned as edges", {
 context("Generating random trees")
 
 test_that("simple tree returns the right number of edges", {
-  formulas <- generate_formulas("y ~ x", c("a", "b", "c"))
-  tree_edges <- get_tree_edges(formulas)
+  formulas <- expand_formulas("y ~ x", c("a", "b", "c"))
+  tree_edges <- walk_formula_tree(formulas)
   expect_equal(nrow(tree_edges), 7)
 })
