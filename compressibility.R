@@ -39,7 +39,19 @@ ggraph(graph, layout = "kk") +
   scale_color_manual(values = c("green", "yellow", "red"), drop = FALSE) +
   theme_graph()
 
-ggsave("compressibility.png")
+# ggsave("compressibility.png")
+
+# ----------------------------
+# Randomly selected tree edges
+tree_edges <- get_tree_edges(formulas)
+
+# Draw the igraph::graph object with ggraph
+graph <- graph_from_data_frame(tree_edges, vertices = models)
+ggraph(graph, layout = "dendrogram") +
+  geom_edge_diagonal() +
+  geom_node_point(aes(size = significance_level, color = significance_level)) +
+  geom_node_text(aes(filter = is_base, label = name), vjust = -1,
+                 size = 5)
 
 # ----------------------
 # Extend to 4 covariates

@@ -44,25 +44,3 @@ split_formula_args <- function(formula_string) {
   if (length(formula_args) == 1) return(formula_args[[1]])
   formula_args
 }
-
-get_deviations <- function(formulas) {
-  all_pairwise <- tibble::as_data_frame(t(combn(formulas, m = 2)))
-  names(all_pairwise) <- c("from", "to")
-  all_pairwise %>%
-    rowwise() %>%
-    do(compare_formulas(.$from, .$to)) %>%
-    ungroup() %>%
-    filter(n_different == 1)
-}
-
-get_tree_edges <- function(formulas, ordered_covariates) {
-  
-  if (missing(ordered_covariates)) {
-    base_formula <- formulas[1]
-    max_formula <- formulas[length(formulas)]
-    ordered_covariates <- setdiff(split_formula_args(max_formula),
-                                  split_formula_args(base_formula))
-  }
-  
-  all_pairwise <- get_deviations(formulas)
-}
